@@ -17,12 +17,12 @@ jobs:
         fetch-depth: 0
 
     - name: Git Semantic Version
-      uses: paulhatch/semantic-version@v4.0.2
+      id: version  # FIXED: Moved step ID to the step root
+      uses: paulhatch/semantic-version@v5.4.0 # Upgraded to latest v5 release
       with:
         major_pattern: "major:"
         minor_pattern: "feat:"
         format: "${major}.${minor}.${patch}-prerelease${increment}"
-        id: version
 
     - name: Docker login
       env:
@@ -30,12 +30,12 @@ jobs:
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-        echo "Nueva versión: $NEW_VERSION"
 
     - name: Build Docker Image
       env:
         NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
+        echo "Nueva versión: $NEW_VERSION"
         docker build -t ignacio5252/docker-graphql:$NEW_VERSION .
 
     - name: Push Docker Image
